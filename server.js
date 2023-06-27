@@ -44,22 +44,28 @@ app.get('/documents/:id', async (req, res) => {
       console.error('Error fetching document:', error);
       res.status(500).json({ error: 'Server error' });
     }
-  });
+});
   
-  // PUT route to update the contents of a document
-  app.put('/documents/:id', async (req, res) => {
-    try {
-      const document = await Document.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      if (!document) {
-        return res.status(404).json({ error: 'Document not found' });
-      }
-      res.json(document);
-    } catch (error) {
-      console.error('Error updating document:', error);
-      res.status(500).json({ error: 'Server error' });
+// PUT route to update the contents of a document
+app.put('/documents/:id', async (req, res) => {
+  try {
+    const document = await Document.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
     }
+    res.json(document);
+  } catch (error) {
+    console.error('Error updating document:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/documents', (req, res) => {
+  Document.find({}).then((documents) => {
+    res.json(documents);
   });
-  
+});
+
 //   // POST route to create a new document
 //   app.post('/documents', async (req, res) => {
 //     try {
@@ -86,12 +92,7 @@ app.get('/documents/:id', async (req, res) => {
 //     }
 //   });
 
-//   // GET route to fetch all documents
-// app.get('/documents', (req, res) => {
-//     Document.find({}).then((documents) => {
-//           res.json(documents);
-//       });
-// });
+  // GET route to fetch all documents
 
 
 app.listen(port, () => {
