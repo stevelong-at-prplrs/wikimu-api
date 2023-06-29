@@ -31,19 +31,26 @@ app.use((_req, res, next) => {
 
     next();
 });
+
+// GET route to fetch all documents
+app.get('/documents', (req, res) => {
+  Document.find({}).then((documents) => {
+    res.json(documents);
+  });
+});
   
 // GET route to fetch the contents of a document by ID
 app.get('/documents/:id', async (req, res) => {
-    try {
-      const document = await Document.findById(req.params.id);
-      if (!document) {
-        return res.status(404).json({ error: 'Document not found' });
-      }
-      res.json(document);
-    } catch (error) {
-      console.error('Error fetching document:', error);
-      res.status(500).json({ error: 'Server error' });
+  try {
+    const document = await Document.findById(req.params.id);
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
     }
+    res.json(document);
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
   
 // PUT route to update the contents of a document
@@ -60,40 +67,31 @@ app.put('/documents/:id', async (req, res) => {
   }
 });
 
-app.get('/documents', (req, res) => {
-  Document.find({}).then((documents) => {
-    res.json(documents);
-  });
+// POST route to create a new document
+app.post('/documents', async (req, res) => {
+  try {
+    const document = new Document(req.body);
+    const savedDocument = await document.save();
+    res.status(201).json(savedDocument);
+  } catch (error) {
+    console.error('Error creating document:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-//   // POST route to create a new document
-//   app.post('/documents', async (req, res) => {
-//     try {
-//       const document = new Document(req.body);
-//       const savedDocument = await document.save();
-//       res.status(201).json(savedDocument);
-//     } catch (error) {
-//       console.error('Error creating document:', error);
-//       res.status(500).json({ error: 'Server error' });
-//     }
-//   });
-  
-//   // DELETE route to delete a document
-//   app.delete('/documents/:id', async (req, res) => {
-//     try {
-//       const document = await Document.findByIdAndDelete(req.params.id);
-//       if (!document) {
-//         return res.status(404).json({ error: 'Document not found' });
-//       }
-//       res.json({ message: 'Document deleted successfully' });
-//     } catch (error) {
-//       console.error('Error deleting document:', error);
-//       res.status(500).json({ error: 'Server error' });
-//     }
-//   });
-
-  // GET route to fetch all documents
-
+// DELETE route to delete a document
+app.delete('/documents/:id', async (req, res) => {
+  try {
+    const document = await Document.findByIdAndDelete(req.params.id);
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    res.json({ message: 'Document deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
