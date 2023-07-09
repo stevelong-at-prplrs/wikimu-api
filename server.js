@@ -79,6 +79,27 @@ app.post('/documents', async (req, res) => {
   }
 });
 
+// POST route to duplicate a document
+app.post('/documents/:id/duplicate', async (req, res) => {
+
+  try {
+    const document = await Document.findById(req.params.id);
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    const newDocument = new Document({
+      title: document.title,
+      content: document.content,
+      parent: document.parent
+    });
+    const savedDocument = await newDocument.save();
+    res.status(201).json(savedDocument);
+  } catch (error) {
+    console.error('Error duplicating document:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // DELETE route to delete a document
 app.delete('/documents/:id', async (req, res) => {
   try {
