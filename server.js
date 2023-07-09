@@ -27,16 +27,16 @@ app.use((_req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, DELETE');
 
     next();
 });
 
 // GET route to fetch all documents
 app.get('/documents', (req, res) => {
-  Document.find({}).then((documents) => {
-    res.json(documents);
-  });
+  Document.find({})
+  .then((documents) => res.status(200).json(documents))
+  .catch((error) => res.status(500).json({ error: 'Server error:\n', error }));
 });
   
 // GET route to fetch the contents of a document by ID
@@ -84,9 +84,10 @@ app.delete('/documents/:id', async (req, res) => {
   try {
     const document = await Document.findByIdAndDelete(req.params.id);
     if (!document) {
-      return res.status(404).json({ error: 'Document not found' });
+      res.status(404).json({ error: 'Document not found' });
+    } else {
+      res.status(200).json({ message: 'Document deleted successfully', document });
     }
-    res.json({ message: 'Document deleted successfully' });
   } catch (error) {
     console.error('Error deleting document:', error);
     res.status(500).json({ error: 'Server error' });
